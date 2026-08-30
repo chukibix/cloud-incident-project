@@ -155,6 +155,7 @@ resource "aws_instance" "k8s" {
     db_password  = var.db_password
     db_name      = var.db_name
     ecr_repo_url = var.ecr_repo_url
+    db_host      = aws_db_instance.main.endpoint
   })
 
   root_block_device {
