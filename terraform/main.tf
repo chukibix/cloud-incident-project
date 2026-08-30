@@ -157,6 +157,11 @@ resource "aws_instance" "k8s" {
     ecr_repo_url = var.ecr_repo_url
   })
 
+  root_block_device {
+    volume_size = 30
+    volume_type = "gp3"
+  }
+
   tags = {
     Name = "cloud-incident-k8s"
   }
