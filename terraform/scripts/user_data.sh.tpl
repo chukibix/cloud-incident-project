@@ -37,6 +37,14 @@ helm install yace yace/yet-another-cloudwatch-exporter \
 
 kubectl apply -f /tmp/cloud-incident-project/monitoring/yace-servicemonitor.yaml
 
+sudo apt-get update
+sudo apt-get install -y unzip
+
+# ---------- AWS CLI ----------
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
 # ---------- secrets for backend ----------
 
 # ECR pull secret — generated fresh, so it's never stale/expired
