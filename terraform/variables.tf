@@ -15,3 +15,15 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "db_name" {
+  description = "Database name the backend connects to"
+  type        = string
+  default     = "postgres"
+}
+
+variable "ecr_repo_url" {
+  description = "ECR repository URL for the backend image"
+  type        = string
+  default     = "351291606284.dkr.ecr.eu-west-3.amazonaws.com"
+}

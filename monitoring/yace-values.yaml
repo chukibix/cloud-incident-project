@@ -1,0 +1,31 @@
+config: |-
+  apiVersion: v1alpha1
+
+  static:
+    - name: cloud-incident-rds
+      regions:
+        - eu-west-3
+      namespace: AWS/RDS
+
+      dimensions:
+        - name: DBInstanceIdentifier
+          value: cloud-incident-db
+
+      metrics:
+        - name: CPUUtilization
+          statistics:
+            - Average
+          period: 300
+          length: 600
+
+        - name: FreeStorageSpace
+          statistics:
+            - Average
+          period: 300
+          length: 600
+
+        - name: SwapUsage
+          statistics:
+            - Average
+          period: 300
+          length: 600

@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: yace
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: yet-another-cloudwatch-exporter
+      app.kubernetes.io/instance: yace
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 60s

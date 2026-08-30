@@ -149,9 +149,13 @@ resource "aws_instance" "k8s" {
   key_name               = "cloud-incident-key"
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.instance_profile.name
-
-  // TODO: add user_data here to auto-install k8s + Grafana + Prometheus on boot,
-  // otherwise a fresh instance from `apply` is just a blank Ubuntu box
+  
+  //install k8s + Grafana + Prometheus on boot.
+  user_data = templatefile("${path.module}/scripts/user_data.sh.tpl", {
+    db_password  = var.db_password
+    db_name      = var.db_name
+    ecr_repo_url = var.ecr_repo_url
+  })
 
   tags = {
     Name = "cloud-incident-k8s"
