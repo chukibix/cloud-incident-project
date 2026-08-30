@@ -68,4 +68,5 @@ kubectl create secret generic cloud-db-ca \
   --namespace=default
 
 # ---------- backend app ----------
+sed -i "s|DB_HOST_PLACEHOLDER|${db_host}|g" /tmp/cloud-incident-project/backend/k8s/backend-deployment.yaml
 kubectl apply -f /tmp/cloud-incident-project/backend/k8s/backend-deployment.yaml
