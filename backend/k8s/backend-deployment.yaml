@@ -1,29 +1,52 @@
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
   name: cloud-backend
-
 spec:
   replicas: 2
-
   selector:
     matchLabels:
       app: cloud-backend
-
   template:
     metadata:
       labels:
         app: cloud-backend
-
     spec:
       imagePullSecrets:
         - name: ecr-registry-secret
-
       containers:
         - name: cloud-backend
-          image: 351291606284.dkr.ecr.eu-west-3.amazonaws.com/project-cloud-incident-backend:1.0
+          image: 351291606284.dkr.ecr.eu-west-3.amazonaws.com/project-cloud-incident-backend:1.3
           imagePullPolicy: IfNotPresent
-
           ports:
             - containerPort: 3000
+          volumeMounts:
+            - name: rds-ca
+              mountPath: /etc/rds
+              readOnly: true
+          env:
+            - name: DB_HOST
+              value: "DB_HOST_PLACEHOLDER"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: cloud-db-secret
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cloud-db-secret
+                  key: DB_PASSWORD
+            - name: DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: cloud-db-secret
+                  key: DB_DATABASE
+            - name: DB_SSL_CA
+              value: "/etc/rds/ca.crt"
+      volumes:
+        - name: rds-ca
+          secret:
+            secretName: cloud-db-ca
