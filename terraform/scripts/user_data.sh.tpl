@@ -37,6 +37,39 @@ helm install yace yace/yet-another-cloudwatch-exporter \
 
 kubectl apply -f /tmp/cloud-incident-project/monitoring/yace-servicemonitor.yaml
 
+# ---------- kube-prometheus-stack ----------
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install monitoring prometheus-community/kube-prometheus-stack -n monitoring
+
+# ---------- Grafana dashboard provisioning ----------
+kubectl create configmap cloud-incident-dashboard \
+  --from-file=cloud-incident-dashboard.json=/tmp/cloud-incident-project/monitoring/dashboards/cloud-incident-dashboard.json \
+  -n monitoring \
+  --dry-run=client -o yaml | \
+  kubectl label --local -f - grafana_dashboard=1 -o yaml | \
+  kubectl apply -f -
+
+# ---------- yace ----------
+helm repo add yace https://nerdswords.github.io/helm-charts
+helm repo update
+
+git clone https://github.com/chukibix/cloud-incident-project.git /tmp/cloud-incident-project
+
+helm install yace yace/yet-another-cloudwatch-exporter \
+  -n monitoring \
+  -f /tmp/cloud-incident-project/monitoring/yace-values.yaml
+
+kubectl apply -f /tmp/cloud-incident-project/monitoring/yace-servicemonitor.yaml
+
+sudo apt-get update
+sudo apt-get install -y unzip
+
+# ---------- AWS CLI ----------
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
 sudo apt-get update
 sudo apt-get install -y unzip
 
