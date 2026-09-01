@@ -1,4 +1,4 @@
-name: CI Pipeline - Lint, Build, Scan, Push
+name: CI Pipeline
 
 on:
   push:
