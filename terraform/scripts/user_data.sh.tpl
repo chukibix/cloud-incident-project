@@ -47,8 +47,7 @@ kubectl create configmap cloud-incident-dashboard \
 
 # ---------- ArgoCD ----------
 kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side
 # wait for argocd server to be ready before continuing
 kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd
 
