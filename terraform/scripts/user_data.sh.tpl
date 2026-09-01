@@ -45,6 +45,12 @@ kubectl create configmap cloud-incident-dashboard \
   kubectl label --local -f - grafana_dashboard=1 -o yaml | \
   kubectl apply -f -
 
+# ---------- ArgoCD ----------
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# wait for argocd server to be ready before continuing
+kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd
 
 sudo apt-get update
 sudo apt-get install -y unzip
@@ -69,6 +75,7 @@ kubectl create secret generic cloud-db-secret \
   --from-literal=DB_USERNAME=postgres \
   --from-literal=DB_PASSWORD='${db_password}' \
   --from-literal=DB_DATABASE=${db_name} \
+  --from-literal=DB_HOST='${db_host}' \
   --namespace=default
 
 # RDS CA cert — pulled from the repo, not a secret value itself
@@ -76,8 +83,5 @@ kubectl create secret generic cloud-db-ca \
   --from-file=ca.crt=/tmp/cloud-incident-project/monitoring/rds-ca.pem \
   --namespace=default
 
-# ---------- backend app ----------
-sed -i "s|DB_HOST_PLACEHOLDER|${db_host}|g" /tmp/cloud-incident-project/backend/k8s/backend-deployment.yaml
-kubectl apply -f /tmp/cloud-incident-project/backend/k8s/backend-deployment.yaml
-
-
+# ---------- backend app, via ArgoCD ----------
+kubectl apply -f /tmp/cloud-incident-project/backend/k8s/argocd-application.yaml

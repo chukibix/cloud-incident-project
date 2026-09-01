@@ -54,6 +54,6 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Push Verified Image to ECR
-        if: success()
+        if: success() && github.event_name == 'push'
         run: |
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}

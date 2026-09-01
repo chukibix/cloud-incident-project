@@ -26,7 +26,10 @@ spec:
               readOnly: true
           env:
             - name: DB_HOST
-              value: "DB_HOST_PLACEHOLDER"
+              valueFrom:
+                secretKeyRef:
+                  name: cloud-db-secret
+                  key: DB_HOST
             - name: DB_PORT
               value: "5432"
             - name: DB_USERNAME
