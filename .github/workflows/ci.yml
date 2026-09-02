@@ -57,3 +57,18 @@ jobs:
         if: success() && github.event_name == 'push'
         run: |
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}
+      
+      - name: Update Deployment Manifest
+        if: success() && github.event_name == 'push'
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          
+
+          MANIFEST_PATH="backend/k8s/backend-deployment.yaml"
+          
+          sed -i 's|image: 351291606284.dkr.ecr.eu-west-3.amazonaws.com/project-cloud-incident-backend:.*|image: 351291606284.dkr.ecr.eu-west-3.amazonaws.com/project-cloud-incident-backend:${{ env.COMMIT_SHA }}|g' $MANIFEST_PATH
+          
+          git add $MANIFEST_PATH
+          git commit -m "ci: update backend image tag to ${{ env.COMMIT_SHA }} [skip ci]"
+          git push
