@@ -62,15 +62,16 @@ async generateTraffic() {
   };
 }
 
-  cpuStress(durationSeconds = 10) {
+async cpuStress(durationSeconds = 5) {
     const end = Date.now() + durationSeconds * 1000;
-
     let result = 0;
 
     while (Date.now() < end) {
       for (let i = 0; i < 100000; i++) {
         result += Math.sqrt(i) * Math.random();
       }
+      // Yield control back to the event loop so it can handle HTTP responses and health checks
+      await new Promise((resolve) => setImmediate(resolve));
     }
 
     return {
