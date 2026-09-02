@@ -18,6 +18,14 @@ spec:
         - name: cloud-backend
           image: 351291606284.dkr.ecr.eu-west-3.amazonaws.com/project-cloud-incident-backend:1.3
           imagePullPolicy: IfNotPresent
+          # REQUIRED FOR HPA: Set baseline CPU requests & limits
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
           ports:
             - containerPort: 3000
           volumeMounts:
