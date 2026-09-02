@@ -1,6 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Res } from '@nestjs/common';
 import { AppService } from './app.service';
-import { Response } from 'express';
+import type { Response } from 'express'; // <-- Add 'type' here
 import { join } from 'path';
 
 @Controller()
