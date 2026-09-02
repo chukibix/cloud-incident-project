@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Reliability & Autoscaling Showcase</title>
+    <style>
+        :root {
+            --bg-color: #111827;
+            --card-bg: #1f2937;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            border-bottom: 1px solid #374151;
+            padding-bottom: 30px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: var(--accent);
+            margin-top: 40px;
+            border-bottom: 2px solid var(--accent);
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #374151;
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+        }
+        li::before {
+            content: "✓";
+            color: var(--success);
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .credits {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            padding-top: 20px;
+            border-top: 1px solid #374151;
+        }
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        a:hover {
+            color: var(--accent-hover);
+        }
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .tag {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Cloud Reliability Showcase</h1>
+            <p class="subtitle">Live demonstration of Kubernetes autoscaling, GitOps, and system observability.</p>
+        </header>
+
+        <section class="card">
+            <h2>About the Project</h2>
+            <p>This backend infrastructure is designed to demonstrate core Site Reliability Engineering (SRE) and DevOps principles. It features dedicated endpoints that intentionally stress the system's compute and storage layers, allowing external load-testing tools to trigger automated scaling events.</p>
+        </section>
+
+        <section class="card">
+            <h2>Infrastructure & Tech Stack</h2>
+            <div class="tech-tags">
+                <span class="tag">Kubernetes</span>
+                <span class="tag">Argo CD</span>
+                <span class="tag">AWS EC2</span>
+                <span class="tag">AWS RDS (PostgreSQL)</span>
+                <span class="tag">Grafana</span>
+                <span class="tag">Prometheus</span>
+                <span class="tag">NestJS</span>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Simulation Endpoints</h2>
+            <p>Use a load-generation tool (like <code>hey</code> or <code>curl</code>) against these routes to observe the cluster's behavior in real-time:</p>
+            <ul>
+                <li><strong>/simulations/cpu</strong> - Maxes out Node.js event loop to trigger Horizontal Pod Autoscaler (HPA).</li>
+                <li><strong>/simulations/database</strong> - Generates heavy IOPS and forces intensive in-memory sorting to stress the RDS instance.</li>
+                <li><strong>/simulations/slow</strong> - Simulates artificial network latency to test Ingress timeouts.</li>
+                <li><strong>/simulations/error</strong> - Triggers HTTP 500 errors to test alerting pipelines.</li>
+            </ul>
+        </section>
+
+        <div class="credits">
+            <p><strong>Developed by Yorgo Younes</strong></p>
+            <p>Master 2 Réseau (RES) - Sorbonne Université</p>
+            <p>Prepared for DevOps / Cloud Engineering Showcase</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -82,28 +82,30 @@ async generateTraffic() {
 
   //workload stree to table
 async databaseWorkload() {
-  const records: Partial<WorkloadRecord>[] = [];
+  // 1. Target "Free Storage" & "Swap"
+  // Create a 50KB string of junk data to eat up disk space rapidly
+  const massivePayload = 'X'.repeat(50000); 
+  
+  const records = Array.from({ length: 100 }, (_, i) => ({
+    payload: `Heavy Record ${i} - ${massivePayload}`,
+    createdAt: new Date(),
+  }));
 
-  for (let i = 0; i < 1000; i++) {
-    records.push({
-      payload: 'Database workload record ${i}',
-      createdAt: new Date(),
-    });
-  }
+  // Promise.all opens multiple concurrent connections instead of 1 efficient bulk insert
+  await Promise.all(
+    records.map(record => this.workloadRepository.save(record))
+  );
 
-  await this.workloadRepository.insert(records);
-
-  const results = await this.workloadRepository.find({
-    take: 1000,
-    order: {
-      id: 'DESC',
-    },
-  });
+  // 2. Target "RDS CPU Usage" & "Swap"
+  // ORDER BY RANDOM() is notoriously expensive. It forces PostgreSQL to 
+  // load data into memory (and swap) to perform the randomized sort.
+  await this.workloadRepository.query(
+    'SELECT id FROM workload_record ORDER BY RANDOM() LIMIT 500;'
+  );
 
   return {
-    message: 'Database workload completed',
+    message: 'Database hammered: High IOPS and CPU load generated',
     inserted: records.length,
-    queried: results.length,
   };
-} 
+}
 }
