@@ -100,7 +100,7 @@ async databaseWorkload() {
   // ORDER BY RANDOM() is notoriously expensive. It forces PostgreSQL to 
   // load data into memory (and swap) to perform the randomized sort.
   await this.workloadRepository.query(
-    'SELECT id FROM workload_record ORDER BY RANDOM() LIMIT 500;'
+    'SELECT id FROM workload_records ORDER BY RANDOM() LIMIT 500;'
   );
 
   return {
