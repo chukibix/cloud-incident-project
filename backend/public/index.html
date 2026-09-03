@@ -1,150 +1,436 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Reliability & Autoscaling Showcase</title>
-    <style>
-        :root {
-            --bg-color: #111827;
-            --card-bg: #1f2937;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --accent: #3b82f6;
-            --accent-hover: #2563eb;
-            --success: #10b981;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 50px;
-            border-bottom: 1px solid #374151;
-            padding-bottom: 30px;
-        }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        h2 {
-            color: var(--accent);
-            margin-top: 40px;
-            border-bottom: 2px solid var(--accent);
-            display: inline-block;
-            padding-bottom: 5px;
-        }
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 1.2rem;
-        }
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            background: #374151;
-            margin: 8px 0;
-            padding: 12px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-        }
-        li::before {
-            content: "✓";
-            color: var(--success);
-            font-weight: bold;
-            margin-right: 15px;
-        }
-        .credits {
-            margin-top: 50px;
-            text-align: center;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            padding-top: 20px;
-            border-top: 1px solid #374151;
-        }
-        a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-        a:hover {
-            color: var(--accent-hover);
-        }
-        .tech-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .tag {
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
-            padding: 5px 12px;
-            border-radius: 9999px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cloud-incident-platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e14;
+    --surface: #10151c;
+    --surface-2: #161d26;
+    --border: #212a35;
+    --text: #dde3ea;
+    --text-muted: #6b7684;
+    --accent: #e8a33d;
+    --accent-dim: #a97a34;
+    --danger: #e5484d;
+    --success: #35c98c;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    line-height: 1.6;
+  }
+  ::selection { background: var(--accent); color: #17110a; }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 64px 24px 96px;
+  }
+
+  /* ---------- hero ---------- */
+  .hero { margin-bottom: 56px; }
+  .prompt {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent);
+    margin: 0 0 18px;
+  }
+  .prompt .path { color: var(--text-muted); }
+  .prompt .cursor {
+    display: inline-block;
+    width: 8px; height: 1em;
+    background: var(--accent);
+    margin-left: 2px;
+    animation: blink 1.1s steps(1) infinite;
+    vertical-align: -2px;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 2.1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0 0 14px;
+  }
+  .hero p {
+    color: var(--text-muted);
+    font-size: 1.02rem;
+    max-width: 58ch;
+    margin: 0;
+  }
+  .hero a { color: var(--accent); }
+
+  /* ---------- section headers, terminal-comment style ---------- */
+  h2 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin: 0 0 18px;
+  }
+  h2::before { content: "# "; color: var(--accent-dim); }
+
+  section { margin-bottom: 48px; }
+  section:last-of-type { margin-bottom: 0; }
+
+  /* ---------- about / stack ---------- */
+  .about p {
+    margin: 0 0 14px;
+    max-width: 62ch;
+  }
+  .about p:last-child { margin-bottom: 0; }
+
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .stack span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 10px;
+  }
+
+  /* ---------- flow ---------- */
+  .flow {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    padding: 4px 0;
+  }
+  .flow-row {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .flow-row:last-child { border-bottom: none; }
+  .flow-row .n {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent-dim);
+    min-width: 1.4em;
+  }
+  .flow-row .t { color: var(--text); font-weight: 500; }
+  .flow-row .d { color: var(--text-muted); font-size: 0.92rem; }
+
+  /* ---------- console panel ---------- */
+  .console {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .console-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .console-bar label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .console-bar input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    padding: 8px 10px;
+    min-width: 0;
+  }
+  .console-bar input:focus { outline: none; border-color: var(--accent-dim); }
+
+  .cors-note {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    padding: 10px 16px 0;
+    margin: 0;
+  }
+  .cors-note code {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .btn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 16px;
+  }
+  @media (max-width: 480px) {
+    .btn-grid { grid-template-columns: 1fr; }
+  }
+
+  button.test-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    text-align: left;
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 11px 13px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  button.test-btn:hover { border-color: var(--accent-dim); }
+  button.test-btn:active { background: #1b232d; }
+  button.test-btn .cmd { display: block; color: var(--accent); margin-bottom: 3px; }
+  button.test-btn .desc { display: block; color: var(--text-muted); font-family: 'Inter', sans-serif; font-size: 0.76rem; }
+  button.test-btn.danger .cmd { color: var(--danger); }
+  button.test-btn.running { border-color: var(--accent); }
+  button.test-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .log {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+    background: #0d1119;
+  }
+  .log .empty { color: var(--text-muted); }
+  .log .line { margin-bottom: 4px; white-space: pre-wrap; word-break: break-word; }
+  .log .ts { color: var(--text-muted); }
+  .log .ok { color: var(--success); }
+  .log .err { color: var(--danger); }
+  .log .pending { color: var(--accent); }
+
+  /* ---------- footer ---------- */
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  footer a { color: var(--text-muted); }
+  footer .name { color: var(--text); font-weight: 500; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Cloud Reliability Showcase</h1>
-            <p class="subtitle">Live demonstration of Kubernetes autoscaling, GitOps, and system observability.</p>
-        </header>
+<div class="wrap">
 
-        <section class="card">
-            <h2>About the Project</h2>
-            <p>This backend infrastructure is designed to demonstrate core Site Reliability Engineering (SRE) and DevOps principles. It features dedicated endpoints that intentionally stress the system's compute and storage layers, allowing external load-testing tools to trigger automated scaling events.</p>
-        </section>
+  <header class="hero">
+    <p class="prompt"><span class="path">yorgo@cloud-incident</span>:~$ whoami<span class="cursor"></span></p>
+    <h1>cloud-incident-platform</h1>
+    <p>
+      A self-hosted backend and monitoring stack, built to fail on purpose. Every layer
+      — networking, compute, database, deployment — is provisioned from code and can be
+      torn down and rebuilt from nothing. This page talks directly to the live API to
+      generate load, so you can watch the system respond in real time.
+    </p>
+  </header>
 
-        <section class="card">
-            <h2>Infrastructure & Tech Stack</h2>
-            <div class="tech-tags">
-                <span class="tag">Kubernetes</span>
-                <span class="tag">Argo CD</span>
-                <span class="tag">AWS EC2</span>
-                <span class="tag">AWS RDS (PostgreSQL)</span>
-                <span class="tag">Grafana</span>
-                <span class="tag">Prometheus</span>
-                <span class="tag">NestJS</span>
-            </div>
-        </section>
-
-        <section class="card">
-            <h2>Simulation Endpoints</h2>
-            <p>Use a load-generation tool (like <code>hey</code> or <code>curl</code>) against these routes to observe the cluster's behavior in real-time:</p>
-            <ul>
-                <li><strong>/simulations/cpu</strong> - Maxes out Node.js event loop to trigger Horizontal Pod Autoscaler (HPA).</li>
-                <li><strong>/simulations/database</strong> - Generates heavy IOPS and forces intensive in-memory sorting to stress the RDS instance.</li>
-                <li><strong>/simulations/slow</strong> - Simulates artificial network latency to test Ingress timeouts.</li>
-                <li><strong>/simulations/error</strong> - Triggers HTTP 500 errors to test alerting pipelines.</li>
-            </ul>
-        </section>
-
-        <div class="credits">
-            <p><strong>Developed by Yorgo Younes</strong></p>
-            <p>Master 2 Réseau (RES) - Sorbonne Université</p>
-            <p>Prepared for DevOps / Cloud Engineering Showcase</p>
-        </div>
+  <section class="about">
+    <h2>about</h2>
+    <p>
+      The backend exposes a handful of endpoints that intentionally stress specific parts
+      of the stack — CPU, database I/O, response latency, error handling — instead of
+      hiding failure behind mocked demos. The goal is to observe real behavior: request
+      queues building up, RDS metrics climbing in Grafana, pods slowing down under load.
+    </p>
+    <p>
+      Infrastructure is provisioned with Terraform, application deployments are handled
+      by ArgoCD watching this repository, and CI builds, scans, and ships new images
+      automatically on every push.
+    </p>
+    <div class="stack">
+      <span>Terraform</span><span>AWS EC2</span><span>AWS RDS · Postgres</span>
+      <span>k3s</span><span>ArgoCD</span><span>Traefik</span>
+      <span>Prometheus</span><span>Grafana</span><span>NestJS</span><span>GitHub Actions</span>
     </div>
+  </section>
+
+  <section class="flow">
+    <div class="flow-row">
+      <span class="n">1</span>
+      <span class="t">Push to main</span>
+      <span class="d">— a commit lands on <code>backend/</code></span>
+    </div>
+    <div class="flow-row">
+      <span class="n">2</span>
+      <span class="t">CI builds and scans</span>
+      <span class="d">— image is built, scanned with Trivy, pushed to ECR</span>
+    </div>
+    <div class="flow-row">
+      <span class="n">3</span>
+      <span class="t">Manifest updated</span>
+      <span class="d">— the new image tag is committed back to the repo</span>
+    </div>
+    <div class="flow-row">
+      <span class="n">4</span>
+      <span class="t">ArgoCD syncs</span>
+      <span class="d">— the cluster is rolled to match, with no manual step</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>simulation console</h2>
+    <div class="console">
+      <div class="console-bar">
+        <label for="host">target</label>
+        <input id="host" type="text" placeholder="http://your-ec2-public-ip" />
+      </div>
+      <p class="cors-note">
+        Requests are sent straight from your browser to the API above — enable CORS in
+        the NestJS app (<code>app.enableCors()</code>) or open this page from the same
+        origin as the API.
+      </p>
+
+      <div class="btn-grid">
+        <button class="test-btn" data-action="health">
+          <span class="cmd">GET /simulations/health</span>
+          <span class="desc">Confirms the API is reachable</span>
+        </button>
+        <button class="test-btn" data-action="slow">
+          <span class="cmd">POST /simulations/slow</span>
+          <span class="desc">Adds a 2s artificial delay</span>
+        </button>
+        <button class="test-btn danger" data-action="errors">
+          <span class="cmd">POST /simulations/errors</span>
+          <span class="desc">Forces a 500, for alerting</span>
+        </button>
+        <button class="test-btn" data-action="traffic">
+          <span class="cmd">POST /simulations/traffic</span>
+          <span class="desc">Fires 1,000 internal requests</span>
+        </button>
+        <button class="test-btn danger" data-action="database">
+          <span class="cmd">POST /simulations/database</span>
+          <span class="desc">Bulk insert + expensive sort on RDS</span>
+        </button>
+        <button class="test-btn" data-action="cpu-moderate">
+          <span class="cmd">CPU — moderate</span>
+          <span class="desc">Steady requests, ~10/sec, until stopped</span>
+        </button>
+        <button class="test-btn danger" data-action="cpu-heavy" style="grid-column: 1 / -1;">
+          <span class="cmd">CPU — heavy</span>
+          <span class="desc">40 sequential CPU-stress requests, back to back</span>
+        </button>
+      </div>
+
+      <div class="log" id="log"><div class="empty">// output will appear here</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <p><span class="name">Yorgo Younes</span> — Master's, Networks &amp; Cybersecurity, Sorbonne Université</p>
+    <p>Built as a hands-on IaC / GitOps / observability project.</p>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  const hostInput = document.getElementById('host');
+  const logEl = document.getElementById('log');
+  const buttons = document.querySelectorAll('.test-btn');
+  let moderateTimer = null;
+
+  function base() {
+    const v = hostInput.value.trim().replace(/\/$/, '');
+    return v || null;
+  }
+
+  function log(msg, cls) {
+    if (logEl.querySelector('.empty')) logEl.innerHTML = '';
+    const ts = new Date().toLocaleTimeString();
+    const row = document.createElement('div');
+    row.className = 'line';
+    row.innerHTML = '<span class="ts">[' + ts + ']</span> <span class="' + (cls || '') + '">' + msg + '</span>';
+    logEl.appendChild(row);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  async function call(method, path) {
+    const b = base();
+    if (!b) { log('set a target host above first', 'err'); return; }
+    const start = performance.now();
+    log(method + ' ' + path + ' &hellip;', 'pending');
+    try {
+      const res = await fetch(b + path, { method });
+      const ms = Math.round(performance.now() - start);
+      log(method + ' ' + path + ' &rarr; ' + res.status + ' (' + ms + 'ms)', res.ok ? 'ok' : 'err');
+      return res;
+    } catch (e) {
+      const ms = Math.round(performance.now() - start);
+      log(method + ' ' + path + ' &rarr; request failed (' + ms + 'ms) &mdash; check CORS / target host', 'err');
+    }
+  }
+
+  function setRunning(btn, running) {
+    btn.classList.toggle('running', running);
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const action = btn.dataset.action;
+
+      if (action === 'health') return call('GET', '/simulations/health');
+      if (action === 'slow') return call('POST', '/simulations/slow');
+      if (action === 'errors') return call('POST', '/simulations/errors');
+      if (action === 'traffic') return call('POST', '/simulations/traffic');
+      if (action === 'database') return call('POST', '/simulations/database');
+
+      if (action === 'cpu-heavy') {
+        btn.disabled = true;
+        setRunning(btn, true);
+        log('starting heavy CPU burst &mdash; 40 requests, one at a time', 'pending');
+        for (let i = 1; i <= 40; i++) {
+          await call('POST', '/simulations/cpu');
+          btn.querySelector('.desc').textContent = i + ' / 40 sent';
+        }
+        log('heavy CPU burst complete', 'ok');
+        btn.querySelector('.desc').textContent = '40 sequential CPU-stress requests, back to back';
+        btn.disabled = false;
+        setRunning(btn, false);
+        return;
+      }
+
+      if (action === 'cpu-moderate') {
+        if (moderateTimer) {
+          clearInterval(moderateTimer);
+          moderateTimer = null;
+          setRunning(btn, false);
+          btn.querySelector('.cmd').textContent = 'CPU — moderate';
+          log('moderate CPU load stopped', 'ok');
+          return;
+        }
+        setRunning(btn, true);
+        btn.querySelector('.cmd').textContent = 'CPU — moderate (stop)';
+        log('starting moderate CPU load &mdash; one request every 100ms, click again to stop', 'pending');
+        moderateTimer = setInterval(() => call('POST', '/simulations/cpu'), 100);
+      }
+    });
+  });
+})();
+</script>
 </body>
 </html>
