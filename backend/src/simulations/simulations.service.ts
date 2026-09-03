@@ -83,30 +83,23 @@ async cpuStress(durationSeconds = 5) {
 
   //workload stree to table
 async databaseWorkload() {
-  // 1. Target "Free Storage" & "Swap"
-  // Create a 50KB string of junk data to eat up disk space rapidly
-  const massivePayload = 'X'.repeat(50000); 
-  
-  const records = Array.from({ length: 100 }, (_, i) => ({
-    payload: `Heavy Record ${i} - ${massivePayload}`,
-    createdAt: new Date(),
-  }));
-
-  // Promise.all opens multiple concurrent connections instead of 1 efficient bulk insert
-  await Promise.all(
-    records.map(record => this.workloadRepository.save(record))
-  );
+  // 1. Shift the generation burden to PostgreSQL
+  // Node.js sends a tiny 100-byte text string over a single connection.
+  // PostgreSQL handles the memory allocation, string repetition, and bulk insert.
+  await this.workloadRepository.query(`
+    INSERT INTO workload_records (payload, "createdAt")
+    SELECT repeat('X', 50000), NOW()
+    FROM generate_series(1, 100);
+  `);
 
   // 2. Target "RDS CPU Usage" & "Swap"
-  // ORDER BY RANDOM() is notoriously expensive. It forces PostgreSQL to 
-  // load data into memory (and swap) to perform the randomized sort.
+  // The DB still has to run the expensive random sort in memory.
   await this.workloadRepository.query(
     'SELECT id FROM workload_records ORDER BY RANDOM() LIMIT 500;'
   );
 
   return {
-    message: 'Database hammered: High IOPS and CPU load generated',
-    inserted: records.length,
+    message: 'Database hammered: Node.js bypassed, RDS took the full hit',
   };
 }
 }
