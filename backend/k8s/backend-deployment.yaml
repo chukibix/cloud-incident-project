@@ -17,15 +17,16 @@ spec:
       containers:
         - name: cloud-backend
           image: 351291606284.dkr.ecr.eu-west-3.amazonaws.com/project-cloud-incident-backend:e3aa080
+          image: 351291606284.dkr.ecr.eu-west-3.amazonaws.com/project-cloud-incident-backend:b438606
           imagePullPolicy: IfNotPresent
           # REQUIRED FOR HPA: Set baseline CPU requests & limits
           resources:
             requests:
-              cpu: "250m"
-              memory: "256Mi"
+              cpu: "50m"
+              memory: "128Mi"
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: "60m"
+              memory: "256Mi"
           ports:
             - containerPort: 3000
           volumeMounts:

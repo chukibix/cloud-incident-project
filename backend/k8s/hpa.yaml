@@ -7,8 +7,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: cloud-backend
-  minReplicas: 2
-  maxReplicas: 7
+  minReplicas: 5
+  maxReplicas: 15
   metrics:
     - type: Resource
       resource:
