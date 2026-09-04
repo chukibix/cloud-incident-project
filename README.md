@@ -1,6 +1,6 @@
 # Cloud Incident Platform
 
-A fully reproducible AWS infrastructure project: a NestJS backend, PostgreSQL (RDS), and a Kubernetes-based monitoring stack (Prometheus + Grafana), provisioned entirely from code. The whole environment can be destroyed and rebuilt from scratch with two commands — `terraform destroy` and `terraform apply` — with zero manual setup steps in between.
+A fully reproducible AWS infrastructure project: a NestJS backend, PostgreSQL (RDS), and a Kubernetes-based monitoring stack (Prometheus + Grafana), provisioned entirely from code. The whole environment can be destroyed and rebuilt from scratch with two commands : `terraform destroy` and `terraform apply` . with zero manual setup steps in between.
 
 This project was built as a hands-on exploration of Infrastructure as Code, GitOps, and observability, targeting DevOps/SRE workflows.
 
@@ -31,8 +31,8 @@ This project was built as a hands-on exploration of Infrastructure as Code, GitO
 ```
 
 **Two independent lifecycles, on purpose:**
-- **Infrastructure** (VPC, EC2, RDS, IAM) — changes rarely, via `terraform apply`/`destroy`.
-- **Application** (backend code) — changes often, via `git push` → CI/CD → auto-deployed by ArgoCD, with no infrastructure changes required.
+- **Infrastructure** (VPC, EC2, RDS, IAM) , changes rarely, via `terraform apply`/`destroy`.
+- **Application** (backend code) , changes often, via `git push` → CI/CD → auto-deployed by ArgoCD, with no infrastructure changes required.
 
 ---
 
@@ -96,11 +96,11 @@ cloud-incident-platform/
    - Installs `yace`, configured to pull RDS CloudWatch metrics
    - Provisions a custom Grafana dashboard from a JSON file in this repo
    - Installs ArgoCD
-   - Creates the Kubernetes Secrets the backend needs (DB credentials, RDS CA cert, ECR pull credentials) — all values sourced from Terraform variables or generated fresh (the ECR token is regenerated at every boot rather than reused, so it never goes stale)
+   - Creates the Kubernetes Secrets the backend needs (DB credentials, RDS CA cert, ECR pull credentials) , all values sourced from Terraform variables or generated fresh (the ECR token is regenerated at every boot rather than reused, so it never goes stale)
    - Applies a single ArgoCD `Application` resource pointing at `backend/k8s/` in this repo
-3. From that point on, ArgoCD takes over: it watches `backend/k8s/` in GitHub directly and keeps the cluster's Deployment/Service/Ingress in sync with whatever is committed there — independent of the boot script, for the lifetime of the instance.
+3. From that point on, ArgoCD takes over: it watches `backend/k8s/` in GitHub directly and keeps the cluster's Deployment/Service/Ingress in sync with whatever is committed there , independent of the boot script, for the lifetime of the instance.
 
-**Why this matters:** every value that changes between rebuilds (the RDS endpoint, the current IP allowed to SSH in, secrets) is injected dynamically at boot time via Terraform's `templatefile()` — nothing is hardcoded, so `destroy` → `apply` reliably produces a working environment every time.
+**Why this matters:** every value that changes between rebuilds (the RDS endpoint, the current IP allowed to SSH in, secrets) is injected dynamically at boot time via Terraform's `templatefile()` , nothing is hardcoded, so `destroy` → `apply` reliably produces a working environment every time.
 
 ---
 
@@ -110,10 +110,10 @@ cloud-incident-platform/
 2. GitHub Actions:
    - Lints the Dockerfile (Hadolint)
    - Builds the Docker image, tagged with the short Git SHA
-   - Scans the image for critical/high vulnerabilities (Trivy) — the pipeline fails the push if the scan fails
+   - Scans the image for critical/high vulnerabilities (Trivy) , the pipeline fails the push if the scan fails
    - Pushes the verified image to Amazon ECR
    - Patches `backend/k8s/backend-deployment.yaml` with the new image tag and commits that change back to `main`
-3. ArgoCD (already running in the cluster, polling GitHub independently) detects the manifest change on its next sync, and rolls out the new image — no SSH, no manual `kubectl`, no infrastructure changes required.
+3. ArgoCD (already running in the cluster, polling GitHub independently) detects the manifest change on its next sync, and rolls out the new image , no SSH, no manual `kubectl`, no infrastructure changes required.
 
 This means: **infrastructure changes require `terraform apply`; application changes require only a `git push`.**
 
@@ -123,7 +123,7 @@ This means: **infrastructure changes require `terraform apply`; application chan
 
 - **Grafana** dashboards (provisioned as code, not built by hand in the UI) cover: RDS CPU/storage/swap (via CloudWatch → yace → Prometheus), backend pod distribution, live pod counts, and a yace health check panel.
 - **Prometheus** scrapes cluster-internal metrics (via kube-state-metrics and node-exporter) and CloudWatch-derived RDS metrics (via yace).
-- Access is intentionally **not public**: Grafana and ArgoCD's UIs are reached via SSH tunnel + `kubectl port-forward`, not exposed to the internet. This was a deliberate choice — these are admin surfaces, and the backend API is the only thing meant to be publicly reachable (via the Traefik Ingress).
+- Access is intentionally **not public**: Grafana and ArgoCD's UIs are reached via SSH tunnel + `kubectl port-forward`, not exposed to the internet. This was a deliberate choice , these are admin surfaces, and the backend API is the only thing meant to be publicly reachable (via the Traefik Ingress).
 
 ```bash
 ssh -i <key>.pem -L 3000:localhost:3000 ubuntu@<ec2-public-ip>
@@ -169,7 +169,7 @@ terraform destroy
 
 ## Notable design decisions
 
-- **RDS endpoint and DB credentials are never hardcoded** — they're injected into Kubernetes Secrets at boot time from Terraform outputs, so the backend's manifest in Git stays static and portable across rebuilds.
+- **RDS endpoint and DB credentials are never hardcoded** , they're injected into Kubernetes Secrets at boot time from Terraform outputs, so the backend's manifest in Git stays static and portable across rebuilds.
 - **The security group's SSH rule uses a live IP lookup** (`data "http" "my_ip"`) rather than a hardcoded CIDR, so it self-corrects on every `apply` regardless of where it's run from.
 - **The backend Deployment has explicit CPU/memory `requests` and `limits`**, so a single misbehaving or load-tested pod cannot starve the rest of the node (Traefik, ArgoCD, monitoring).
 - **`user_data_replace_on_change = true`** ensures any change to the boot script forces a genuinely fresh instance on the next `apply`, rather than silently reusing a stale one (cloud-init only runs `user_data` once per instance, on first boot).
@@ -179,5 +179,5 @@ terraform destroy
 ## Known limitations / possible next steps
 
 - TypeORM's `synchronize: true` is used for schema management; a real production setup would use migrations instead, since concurrent replica startups can race on schema creation.
-- The EC2 instance is a single node — no high availability. A production version would move to a managed Kubernetes service (EKS) with multiple nodes.
+- The EC2 instance is a single node , no high availability. A production version would move to a managed Kubernetes service (EKS) with multiple nodes.
 - Grafana/ArgoCD access via SSH tunnel is intentional for this project's threat model, but a team setting would likely use a VPN or SSO-backed ingress instead.
