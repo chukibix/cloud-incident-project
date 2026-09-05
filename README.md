@@ -8,27 +8,8 @@ This project was built as a hands-on exploration of Infrastructure as Code, GitO
 
 ## Architecture overview
 
-```
-                            ┌─────────────────────────────┐
-                            │           GitHub             │
-                            │  (source of truth for infra   │
-                            │   config and app manifests)   │
-                            └──────────────┬───────────────┘
-                                            │
-                    ┌───────────────────────┼────────────────────────┐
-                    │                       │                        │
-              terraform apply         GitHub Actions            ArgoCD (in-cluster)
-           (infra bootstrap, once)   (CI: build/scan/push)     (CD: continuous sync)
-                    │                       │                        │
-                    ▼                       ▼                        ▼
-        ┌───────────────────────┐   ┌──────────────┐      ┌──────────────────────┐
-        │   AWS (VPC, EC2, RDS,  │   │  Amazon ECR   │      │  k3s cluster on EC2   │
-        │   IAM, Security Groups)│   │ (Docker image  │      │  - Traefik (ingress)  │
-        └───────────────────────┘   │   registry)    │      │  - Prometheus/Grafana │
-                                     └──────────────┘      │  - yace (CloudWatch)  │
-                                                             │  - cloud-backend app  │
-                                                             └──────────────────────┘
-```
+<img width="1156" height="1123" alt="Untitled Diagram" src="https://github.com/user-attachments/assets/5c336b9c-70af-4d04-af5e-b3023a400801" />
+
 
 **Two independent lifecycles, on purpose:**
 - **Infrastructure** (VPC, EC2, RDS, IAM) , changes rarely, via `terraform apply`/`destroy`.
