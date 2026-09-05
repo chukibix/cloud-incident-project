@@ -16,7 +16,7 @@ spec:
         - name: ecr-registry-secret
       containers:
         - name: cloud-backend
-          image: 351291606284.dkr.ecr.eu-west-3.amazonaws.com/project-cloud-incident-backend:30d5257
+          image: 351291606284.dkr.ecr.eu-west-3.amazonaws.com/project-cloud-incident-backend:2e7fc53
           imagePullPolicy: IfNotPresent
           # REQUIRED FOR HPA: Set baseline CPU requests & limits
           resources:
