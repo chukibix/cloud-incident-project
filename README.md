@@ -151,6 +151,5 @@ terraform destroy
 
 ## Known limitations / possible next steps
 
-- TypeORM's `synchronize: true` is used for schema management; a real production setup would use migrations instead, since concurrent replica startups can race on schema creation.
 - The EC2 instance is a single node , no high availability. A production version would move to a managed Kubernetes service (EKS) with multiple nodes.
 - Grafana/ArgoCD access via SSH tunnel is intentional for this project's threat model, but a team setting would likely use a VPN or SSO-backed ingress instead.
