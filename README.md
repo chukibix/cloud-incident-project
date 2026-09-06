@@ -119,12 +119,12 @@ sudo kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
 
 **Prerequisites:** an AWS account.
 
-AWS CLI installed and configured with valid credentials
-SSH key pair already created in AWS (cloud-incident-key)
-ECR repository already created (project-cloud-incident-backend)
-GitHub Secrets set: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
-Repo URL hardcoded in user_data.sh.tpl and argocd-application.yaml — update if forking
-terraform.tfvars with db_password (and ecr_repo_url if using a different AWS account)
+- AWS CLI installed and configured with valid credentials
+- SSH key pair already created in AWS (cloud-incident-key)
+- ECR repository already created (project-cloud-incident-backend)
+- GitHub Secrets set: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+- Repo URL hardcoded in user_data.sh.tpl and argocd-application.yaml — update if forking
+- terraform.tfvars with db_password (and ecr_repo_url if using a different AWS account)
 
 Give the instance a few minutes after `apply` completes for the boot script to finish installing everything. Then:
 
