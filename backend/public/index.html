@@ -36,7 +36,6 @@
     padding: 64px 24px 96px;
   }
 
-  /* ---------- hero ---------- */
   .hero { margin-bottom: 56px; }
   .prompt {
     font-family: 'IBM Plex Mono', monospace;
@@ -70,7 +69,6 @@
   }
   .hero a { color: var(--accent); }
 
-  /* ---------- section headers, terminal-comment style ---------- */
   h2 {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.95rem;
@@ -83,7 +81,6 @@
   section { margin-bottom: 48px; }
   section:last-of-type { margin-bottom: 0; }
 
-  /* ---------- about / stack ---------- */
   .about p {
     margin: 0 0 14px;
     max-width: 62ch;
@@ -105,7 +102,6 @@
     padding: 4px 10px;
   }
 
-  /* ---------- flow ---------- */
   .flow {
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -129,7 +125,6 @@
   .flow-row .t { color: var(--text); font-weight: 500; }
   .flow-row .d { color: var(--text-muted); font-size: 0.92rem; }
 
-  /* ---------- console panel ---------- */
   .console {
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -223,7 +218,6 @@
   .log .err { color: var(--danger); }
   .log .pending { color: var(--accent); }
 
-  /* ---------- footer ---------- */
   footer {
     margin-top: 64px;
     padding-top: 24px;
@@ -243,7 +237,7 @@
     <h1>cloud-incident-platform</h1>
     <p>
       A self-hosted backend and monitoring stack, built to fail on purpose. Every layer
-      — networking, compute, database, deployment — is provisioned from code and can be
+      , networking, compute, database, deployment , is provisioned from code and can be
       torn down and rebuilt from nothing. This page talks directly to the live API to
       generate load, so you can watch the system respond in real time.
     </p>
@@ -253,7 +247,7 @@
     <h2>about</h2>
     <p>
       The backend exposes a handful of endpoints that intentionally stress specific parts
-      of the stack — CPU, database I/O, response latency, error handling — instead of
+      of the stack : CPU, database I/O, response latency, error handling , instead of
       hiding failure behind mocked demos. The goal is to observe real behavior: request
       queues building up, RDS metrics climbing in Grafana, pods slowing down under load.
     </p>
@@ -273,22 +267,22 @@
     <div class="flow-row">
       <span class="n">1</span>
       <span class="t">Push to main</span>
-      <span class="d">— a commit lands on <code>backend/</code></span>
+      <span class="d"> a commit lands on <code>backend/</code></span>
     </div>
     <div class="flow-row">
       <span class="n">2</span>
       <span class="t">CI builds and scans</span>
-      <span class="d">— image is built, scanned with Trivy, pushed to ECR</span>
+      <span class="d"> image is built, scanned with Trivy, pushed to ECR</span>
     </div>
     <div class="flow-row">
       <span class="n">3</span>
       <span class="t">Manifest updated</span>
-      <span class="d">— the new image tag is committed back to the repo</span>
+      <span class="d"> the new image tag is committed back to the repo</span>
     </div>
     <div class="flow-row">
       <span class="n">4</span>
       <span class="t">ArgoCD syncs</span>
-      <span class="d">— the cluster is rolled to match, with no manual step</span>
+      <span class="d"> the cluster is rolled to match, with no manual step</span>
     </div>
   </section>
 
@@ -300,7 +294,7 @@
         <input id="host" type="text" placeholder="http://your-ec2-public-ip" />
       </div>
       <p class="cors-note">
-        Requests are sent straight from your browser to the API above — enable CORS in
+        Requests are sent straight from your browser to the API above : enable CORS in
         the NestJS app (<code>app.enableCors()</code>) or open this page from the same
         origin as the API.
       </p>
@@ -320,19 +314,19 @@
         </button>
         <button class="test-btn" data-action="traffic">
           <span class="cmd">POST /simulations/traffic</span>
-          <span class="desc">Fires 1,000 internal requests</span>
+          <span class="desc">Repeats 3 times</span>
         </button>
         <button class="test-btn danger" data-action="database">
           <span class="cmd">POST /simulations/database</span>
-          <span class="desc">Bulk insert + expensive sort on RDS</span>
+          <span class="desc">Repeats continuously for 7s</span>
         </button>
         <button class="test-btn" data-action="cpu-moderate">
-          <span class="cmd">CPU — moderate</span>
-          <span class="desc">Steady requests, ~10/sec, until stopped</span>
+          <span class="cmd">CPU : moderate</span>
+          <span class="desc">Batches of 40, repeating until stopped</span>
         </button>
         <button class="test-btn danger" data-action="cpu-heavy" style="grid-column: 1 / -1;">
-          <span class="cmd">CPU — heavy</span>
-          <span class="desc">40 sequential CPU-stress requests, back to back</span>
+          <span class="cmd">CPU : heavy</span>
+          <span class="desc">Rapid-fire every 100ms, for 2 seconds</span>
         </button>
       </div>
 
@@ -341,8 +335,8 @@
   </section>
 
   <footer>
-    <p><span class="name">Yorgo Younes</span> — Master's, Networks &amp; Cybersecurity, Sorbonne Université</p>
-    <p>Built as a hands-on IaC / GitOps / observability project.</p>
+    <p><span class="name">Yorgo Younes</span>  Masters, Networks &amp; DevOps, Sorbonne Université</p>
+    <p>Built as a hands-on IaC / AWS / GitOps / observability project.</p>
   </footer>
 
 </div>
@@ -352,7 +346,7 @@
   const hostInput = document.getElementById('host');
   const logEl = document.getElementById('log');
   const buttons = document.querySelectorAll('.test-btn');
-  let moderateTimer = null;
+  let moderateRunning = false;
 
   function base() {
     const v = hostInput.value.trim().replace(/\/$/, '');
@@ -389,6 +383,26 @@
     btn.classList.toggle('running', running);
   }
 
+  // sequential, fixed number of requests, one after another
+  async function runNTimes(method, path, n, btn) {
+    for (let i = 1; i <= n; i++) {
+      await call(method, path);
+      if (btn) btn.querySelector('.desc').textContent = i + ' / ' + n + ' sent';
+    }
+  }
+
+  // sequential requests, one after another, until the time budget runs out
+  async function runForDuration(method, path, durationMs, btn) {
+    const end = Date.now() + durationMs;
+    let count = 0;
+    while (Date.now() < end) {
+      await call(method, path);
+      count++;
+      if (btn) btn.querySelector('.desc').textContent = count + ' sent';
+    }
+    return count;
+  }
+
   buttons.forEach((btn) => {
     btn.addEventListener('click', async () => {
       const action = btn.dataset.action;
@@ -396,37 +410,66 @@
       if (action === 'health') return call('GET', '/simulations/health');
       if (action === 'slow') return call('POST', '/simulations/slow');
       if (action === 'errors') return call('POST', '/simulations/errors');
-      if (action === 'traffic') return call('POST', '/simulations/traffic');
-      if (action === 'database') return call('POST', '/simulations/database');
 
-      if (action === 'cpu-heavy') {
+      if (action === 'traffic') {
         btn.disabled = true;
         setRunning(btn, true);
-        log('starting heavy CPU burst &mdash; 40 requests, one at a time', 'pending');
-        for (let i = 1; i <= 40; i++) {
-          await call('POST', '/simulations/cpu');
-          btn.querySelector('.desc').textContent = i + ' / 40 sent';
-        }
-        log('heavy CPU burst complete', 'ok');
-        btn.querySelector('.desc').textContent = '40 sequential CPU-stress requests, back to back';
+        log('sending traffic burst &mdash; 3 requests&hellip;', 'pending');
+        await runNTimes('POST', '/simulations/traffic', 3, btn);
+        log('traffic burst complete', 'ok');
+        btn.querySelector('.desc').textContent = 'Repeats 3 times';
         btn.disabled = false;
         setRunning(btn, false);
         return;
       }
 
+      if (action === 'database') {
+        btn.disabled = true;
+        setRunning(btn, true);
+        log('hammering database for 7s&hellip;', 'pending');
+        const n = await runForDuration('POST', '/simulations/database', 7000, btn);
+        log('database load complete &mdash; ' + n + ' requests sent', 'ok');
+        btn.querySelector('.desc').textContent = 'Repeats continuously for 7s';
+        btn.disabled = false;
+        setRunning(btn, false);
+        return;
+      }
+
+      if (action === 'cpu-heavy') {
+        btn.disabled = true;
+        setRunning(btn, true);
+        log('starting CPU burst &mdash; every 100ms for 2s&hellip;', 'pending');
+        const timer = setInterval(() => call('POST', '/simulations/cpu'), 100);
+        setTimeout(() => {
+          clearInterval(timer);
+          log('CPU burst (2s) complete', 'ok');
+          setRunning(btn, false);
+          btn.disabled = false;
+        }, 2000);
+        return;
+      }
+
       if (action === 'cpu-moderate') {
-        if (moderateTimer) {
-          clearInterval(moderateTimer);
-          moderateTimer = null;
+        if (moderateRunning) {
+          moderateRunning = false;
           setRunning(btn, false);
           btn.querySelector('.cmd').textContent = 'CPU — moderate';
+          btn.querySelector('.desc').textContent = 'Batches of 40, repeating until stopped';
           log('moderate CPU load stopped', 'ok');
           return;
         }
+        moderateRunning = true;
         setRunning(btn, true);
         btn.querySelector('.cmd').textContent = 'CPU — moderate (stop)';
-        log('starting moderate CPU load &mdash; one request every 100ms, click again to stop', 'pending');
-        moderateTimer = setInterval(() => call('POST', '/simulations/cpu'), 100);
+        log('starting moderate CPU load &mdash; repeating batches of 40, click to stop', 'pending');
+        (async () => {
+          while (moderateRunning) {
+            for (let i = 1; i <= 40 && moderateRunning; i++) {
+              await call('POST', '/simulations/cpu');
+              btn.querySelector('.desc').textContent = i + ' / 40 (batch running)';
+            }
+          }
+        })();
       }
     });
   });
