@@ -102,16 +102,9 @@ This means: **infrastructure changes require `terraform apply`; application chan
 
 ## Observability
 
-- **Grafana** dashboards (provisioned as code, not built by hand in the UI) cover: RDS CPU/storage/swap (via CloudWatch → yace → Prometheus), backend pod distribution, live pod counts, and a yace health check panel.
+- **Grafana** dashboards (provisioned as code, not built by hand in the UI) cover: RDS CPU/storage/swap (via CloudWatch → yace → Prometheus), backend pod distribution, live pod counts, and a yace health check panel and more.
 - **Prometheus** scrapes cluster-internal metrics (via kube-state-metrics and node-exporter) and CloudWatch-derived RDS metrics (via yace).
 - Access is intentionally **not public**: Grafana and ArgoCD's UIs are reached via SSH tunnel + `kubectl port-forward`, not exposed to the internet. This was a deliberate choice , these are admin surfaces, and the backend API is the only thing meant to be publicly reachable (via the Traefik Ingress).
-
-```bash
-ssh -i <key>.pem -L 3000:localhost:3000 ubuntu@<ec2-public-ip>
-# then, on the instance:
-sudo kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
-# then open http://localhost:3000 locally
-```
 
 ---
 
@@ -127,7 +120,15 @@ sudo kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
 - terraform.tfvars with db_password (and ecr_repo_url if using a different AWS account)
 
 Give the instance a few minutes after `apply` completes for the boot script to finish installing everything. Then:
+Access the application
 
+Once the deployment is ready, the application is available directly through the EC2 public IP:
+
+http://<EC2_PUBLIC_IP>/
+
+This opens the Cloud Incident Platform home page.
+
+The health endpoint can also be used to verify that the backend is running: or also from homepage!
 ```bash
 curl http://<ec2-public-ip>/simulations/health
 ```
@@ -139,6 +140,67 @@ terraform destroy
 ```
 
 ---
+
+## Access Grafana Monitoring Dashboard
+
+The monitoring stack (Prometheus + Grafana) runs on the Kubernetes cluster deployed on the AWS EC2 instance.
+
+> **Note:** The following commands are generated with the correct EC2 IP address when Terraform is applied. You can find the required connection commands and current IP address in the Terraform outputs, so you don't need to manually update the IP each time the infrastructure is recreated.
+
+### 1. Connect to the EC2 instance
+
+Open a terminal and run the SSH command provided by the Terraform output:
+
+```bash
+ssh -i ~/cloud-incident-keyy.pem ubuntu@<EC2_PUBLIC_IP>
+```
+
+### 2. Start the Grafana port-forward
+
+Once connected to the EC2 instance, run:
+
+```bash
+sudo kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
+```
+
+Keep this terminal open.
+
+### 3. Create the SSH tunnel
+
+Open a **second terminal on your local machine** and run:
+
+```bash
+ssh -i ~/cloud-incident-keyy.pem -L 3000:localhost:3000 ubuntu@<EC2_PUBLIC_IP>
+```
+
+Keep this terminal open as well.
+
+### 4. Open Grafana
+
+Open your web browser and go to:
+
+```text
+http://localhost:3000
+```
+
+You should now have access to the Grafana dashboard.
+
+### 5. Get the Grafana admin password
+
+In the SSH terminal connected to the EC2 instance, run:
+
+```bash
+sudo kubectl get secret monitoring-grafana -n monitoring \
+  -o jsonpath='{.data.admin-password}' | base64 -d; echo
+```
+
+Then log in to Grafana using:
+
+* **Username:** `admin`
+* **Password:** The password returned by the command above
+
+You are now ready to access the Prometheus and Grafana monitoring dashboards.
+
 
 ## Notable design decisions
 
