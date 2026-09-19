@@ -415,7 +415,7 @@
         btn.disabled = true;
         setRunning(btn, true);
         log('sending traffic burst &mdash; 3 requests&hellip;', 'pending');
-        await runNTimes('POST', '/simulations/traffic', 3, btn);
+        await runNTimes('POST', '/simulations/traffic', 4, btn);
         log('traffic burst complete', 'ok');
         btn.querySelector('.desc').textContent = 'Repeats 3 times';
         btn.disabled = false;
@@ -453,14 +453,14 @@
         if (moderateRunning) {
           moderateRunning = false;
           setRunning(btn, false);
-          btn.querySelector('.cmd').textContent = 'CPU — moderate';
+          btn.querySelector('.cmd').textContent = 'CPU : moderate';
           btn.querySelector('.desc').textContent = 'Batches of 40, repeating until stopped';
           log('moderate CPU load stopped', 'ok');
           return;
         }
         moderateRunning = true;
         setRunning(btn, true);
-        btn.querySelector('.cmd').textContent = 'CPU — moderate (stop)';
+        btn.querySelector('.cmd').textContent = 'CPU : moderate (stop)';
         log('starting moderate CPU load &mdash; repeating batches of 40, click to stop', 'pending');
         (async () => {
           while (moderateRunning) {
