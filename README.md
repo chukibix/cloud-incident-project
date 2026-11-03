@@ -1,6 +1,6 @@
 # Cloud Incident Platform
 
-A fully reproducible AWS infrastructure project: a NestJS backend, PostgreSQL (RDS), and a Kubernetes-based monitoring stack (Prometheus + Grafana), provisioned entirely from code. The whole environment can be destroyed and rebuilt from scratch with two commands : `terraform destroy` and `terraform apply` . with zero manual setup steps in between.
+A fully reproducible AWS infrastructure project: a NestJS backend, PostgreSQL (RDS), and a Kubernetes-based monitoring stack (Prometheus + Grafana), provisioned entirely from code. The whole environment can be destroyed and rebuilt from scratch : `terraform destroy` and `terraform apply` . with zero manual setup steps in between.
 
 This project was built as a hands-on exploration of Infrastructure as Code, GitOps, and observability, targeting DevOps/SRE workflows.
 
@@ -63,7 +63,7 @@ cloud-incident-platform/
 │   └── scripts/
 │       └── user_data.sh.tpl   # EC2 boot script (installs k3s, Helm, ArgoCD, etc.)
 └── .github/workflows/
-    └── deploy.yml              # CI: build, scan, push image, update manifest
+    └── ci.yml              # CI: build, scan, push image, update manifest
 ```
 
 ---
@@ -77,7 +77,7 @@ cloud-incident-platform/
    - Installs `yace`, configured to pull RDS CloudWatch metrics
    - Provisions a custom Grafana dashboard from a JSON file in this repo
    - Installs ArgoCD
-   - Creates the Kubernetes Secrets the backend needs (DB credentials, RDS CA cert, ECR pull credentials) , all values sourced from Terraform variables or generated fresh (the ECR token is regenerated at every boot rather than reused, so it never goes stale)
+   - Creates the Kubernetes Secrets the backend needs (DB credentials, RDS CA cert, ECR pull credentials) , all values sourced from Terraform variables or generated fresh.
    - Applies a single ArgoCD `Application` resource pointing at `backend/k8s/` in this repo
 3. From that point on, ArgoCD takes over: it watches `backend/k8s/` in GitHub directly and keeps the cluster's Deployment/Service/Ingress in sync with whatever is committed there , independent of the boot script, for the lifetime of the instance.
 
@@ -207,7 +207,6 @@ You are now ready to access the Prometheus and Grafana monitoring dashboards.
 - **RDS endpoint and DB credentials are never hardcoded** , they're injected into Kubernetes Secrets at boot time from Terraform outputs, so the backend's manifest in Git stays static and portable across rebuilds.
 - **The security group's SSH rule uses a live IP lookup** (`data "http" "my_ip"`) rather than a hardcoded CIDR, so it self-corrects on every `apply` regardless of where it's run from.
 - **The backend Deployment has explicit CPU/memory `requests` and `limits`**, so a single misbehaving or load-tested pod cannot starve the rest of the node (Traefik, ArgoCD, monitoring).
-- **`user_data_replace_on_change = true`** ensures any change to the boot script forces a genuinely fresh instance on the next `apply`, rather than silently reusing a stale one (cloud-init only runs `user_data` once per instance, on first boot).
 
 ---
 
