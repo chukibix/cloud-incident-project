@@ -1,7 +1,8 @@
+# what should yace fetch from aws
 config: |-
   apiVersion: v1alpha1
-
-  static:
+  
+  static: 
     - name: cloud-incident-rds
       regions:
         - eu-west-3

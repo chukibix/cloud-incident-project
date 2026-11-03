@@ -14,7 +14,7 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block               = "10.0.1.0/24"
   availability_zone        = "eu-west-3a"
-  map_public_ip_on_launch  = false // matches original setup — public IP comes from the EIP instead
+  map_public_ip_on_launch  = false // matches original setup : public IP comes from the EIP instead
 
   tags = {
     Name = "${var.project_name}-public-subnet"
@@ -92,7 +92,7 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["${chomp(data.http.my_ip.response_body)}/32"]
   }
 
-  // Outbound: unrestricted — instance can reach anything
+  // Outbound: unrestricted instance can reach anything
   egress {
     from_port   = 0
     to_port     = 0
@@ -114,7 +114,7 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
-// Security group for RDS — only reachable from the EC2 security group, not the open internet
+// Security group for RDS,only reachable from the EC2 security group, not the open internet
 resource "aws_security_group" "rds_sg" {
   name        = "cloud-incident-rds-sg"
   description = "Security group for RDS Postgres"
@@ -141,7 +141,7 @@ resource "aws_security_group" "rds_sg" {
   }
 }
 
-// The EC2 instance — runs Kubernetes, which hosts Grafana/Prometheus
+// The EC2 instance
 resource "aws_instance" "k8s" {
   ami                    = "ami-0e1c4170d9c01184b"
   instance_type          = "t3.medium"
@@ -150,7 +150,7 @@ resource "aws_instance" "k8s" {
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.instance_profile.name
   
-  //install k8s + Grafana + Prometheus on boot.
+  //install k8s + Grafana + Prometheus on boot, with variables.
   user_data = templatefile("${path.module}/scripts/user_data.sh.tpl", {
     db_password  = var.db_password
     db_name      = var.db_name
@@ -180,7 +180,7 @@ resource "aws_eip" "k8s" {
 
 // DB subnet group , 2 az
 resource "aws_db_subnet_group" "main" {
-  name        = "clou-incident- project" // exact existing name, kept as-is (typo/space included)
+  name        = "clou-incident- project"
   subnet_ids  = [aws_subnet.private_a.id, aws_subnet.private_b.id]
   description = "for projrct purposes,  my db to span in 2 az"
 
@@ -189,7 +189,7 @@ resource "aws_db_subnet_group" "main" {
   }
 }
 
-// The RDS Postgres database instance itself
+// The RDS Postgres database instance
 resource "aws_db_instance" "main" {
   identifier              = "cloud-incident-db"
   engine                  = "postgres"

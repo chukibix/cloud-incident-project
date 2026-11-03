@@ -113,7 +113,7 @@ resource "aws_iam_role_policy" "describe_rds_ec2" {
   })
 }
 
-// Custom inline policy: allows pulling CloudWatch metrics (EC2 + RDS) — this is what feeds Grafana dashboards via CloudWatch data
+// Custom inline policy: allows pulling CloudWatch metrics (EC2 + RDS) , this is what feeds Grafana dashboards via CloudWatch data
 resource "aws_iam_role_policy" "cloudwatch_ec2_cloudincident" {
   name = "cloudwatch-ec2-cloudIncident"
   role = aws_iam_role.ec2_role_cloud_incient_project.id

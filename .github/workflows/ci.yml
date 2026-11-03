@@ -14,15 +14,15 @@ jobs:
   build-scan-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Source Code
+      - name: Checkout Source Code #get code on runner
         uses: actions/checkout@v4
 
-      - name: Lint Dockerfile with Hadolint
+      - name: Lint Dockerfile with Hadolint #chekc with lint , the image
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: backend/Dockerfile
 
-      - name: Configure AWS Credentials
+      - name: Configure AWS Credentials #from github secrets
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -30,27 +30,27 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
-        id: login-ecr
+        id: login-ecr #give step identifier
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Extract Short Git SHA
         id: vars
-        run: echo "COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+        run: echo "COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV #getting coommit "--" to name image alter
 
       - name: Build Image (Keep Local for Scanning)
         uses: docker/build-push-action@v5
         with:
           context: ./backend                 
-          load: true 
-          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}
+          load: true # param to scan it localy
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }} #regirty /ECR repo : tag
 
       - name: Scan Image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}
-          format: 'table'
+          format: 'table' #ouptu format
           exit-code: '1'           
-          ignore-unfixed: true
+          ignore-unfixed: true  #if no fix yet
           severity: 'CRITICAL'
 
       - name: Push Verified Image to ECR
@@ -58,6 +58,7 @@ jobs:
         run: |
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}
       
+      #after pushing image to ecr, needs to update the deployement manifest YAML of kubernetes, (pod image), argo detect to SYNC CD
       - name: Update Deployment Manifest
         if: success() && github.event_name == 'push'
         run: |
@@ -70,5 +71,5 @@ jobs:
           sed -i 's|image: 351291606284.dkr.ecr.eu-west-3.amazonaws.com/project-cloud-incident-backend:.*|image: 351291606284.dkr.ecr.eu-west-3.amazonaws.com/project-cloud-incident-backend:${{ env.COMMIT_SHA }}|g' $MANIFEST_PATH
           
           git add $MANIFEST_PATH
-          git commit -m "ci: update backend image tag to ${{ env.COMMIT_SHA }} [skip ci]"
+          git commit -m "ci: update backend image tag to ${{ env.COMMIT_SHA }} [skip ci]"  
           git push

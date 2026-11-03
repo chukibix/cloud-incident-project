@@ -1,3 +1,5 @@
+# talks to prometheurs, how prom find and collect
+#served through kube service
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
